@@ -68,38 +68,35 @@ var util = function() {
     return base + "/";
   }
 
-  function routeViews( route ){
-    
-    var fullRoute = route;
-    
-    if( !route.length || route.length === 0 ) {
-      app.routes.pages[ 'home' ]();
-      return;
-    }
-    
-    route = route.split('/');
+  function catchEvents() {
+    $('a').live('click', function( event ) {
+      /*
+        Basic rules of this router:
+          * If the href ends with a bang (!) we're going to trigger an event from app.routes.events
+          * Otherwise, we're going to pass it through to SugarSkull
+      */
 
-    // If we've made it this far, then the ID (if one exists) will be
-    // what comes after the first slash, so /action/id
-    var id = route[1]
-      , action = route[0]
-      ;
+      var route =  $(this).attr('href');
 
-    // If "#" is in the route, and it's the first char, then we are dealing with
-    // a modal, we're going to route it through the views modals object
-    if( action.indexOf( '#' ) === 0 ) {
+      if( route && route.indexOf( '!' ) === ( route.length -1 ) ) {
 
-      action = action.replace('#', '');
-      app.routes.modals[ action ]( id );
+        route = route.substr(0, route.lastIndexOf('!'))
 
-    // Otherwise, it's a page, and we're going to route it through the
-    // views pages object, and pushState
-    } else {
-      console.log(fullRoute)
-      history.pushState({}, "", '/' + fullRoute); 
-      app.routes.pages[ action ]( id );
-      
-    }
+        // The ID (if one exists) will be what comes after the slash
+        var id = route.split('/')[1];
+
+        // If there is an Id, then we have to trim it off the route
+        if(id) {
+          route = route.split('/')[0];
+        }
+
+        if(route in app.routes.events) app.routes.events[ route ](id);
+
+        event.preventDefault();
+
+      }
+
+    });
   }
   
   return {
@@ -108,6 +105,6 @@ var util = function() {
     cachedRequest: cachedRequest,
     render: render,
     getBaseURL: getBaseURL,
-    routeViews: routeViews
+    catchEvents: catchEvents
   };
 }();

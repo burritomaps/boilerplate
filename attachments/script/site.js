@@ -4,7 +4,15 @@ var app = {
 
 couch.dbPath = app.baseURL + "api/";
 
-// some default routes. these can be customized by editing the util.routeViews function
+/*
+  App.routes
+    pages (URL routed with SugarSkull)
+      home (href === "/#/")
+      hey (href === "/#:id")
+    events (no URL change triggered)
+      error (href === "error/uhoh!" or "error!")
+*/
+
 app.routes = {
   pages: {
     // code to be executed when users visit the root route of this couchapp ('/')
@@ -16,6 +24,12 @@ app.routes = {
     // when users visit routes like '/somewhere', this route will get called with id === 'somewhere'
     hey: function(id) {
       if(id) alert(id)
+    }
+  },
+  events: {
+    error: function(message) {
+      messages = {bad: "An error has occurred!"}
+      alert(messages[message])
     }
   }
 }
@@ -29,46 +43,14 @@ app.after = {
 }
 
 
-$(function() {  
-  // set the route as the pathname, but loose the leading slash
-  var route = window.location.pathname.replace('/', '');
-
-  util.routeViews( route );
+$(function() {
   
-  $('a').live('click', function( event ) {
-    /*
-      Basic rules of this router:
-        We are going to let the following types of hrefs through
-         * links off domain (contains http://)
-         * point to elements in app.reservedKeywords through
-         
-        If it's not one of these things, then we are going to prevent default and
-          * If there is a hash in the href, we're going to launch a modal
-          * Otherwise, we're going to pushState and render a page view
-    */
-    
-    var route = $(this).attr('href')
-
-    // If "http://" is in the route, we're going to let it through, and this function is over
-    if( !route || route.indexOf( 'http://' ) > -1) {
-      return;
-    }
-
-    // If the route contains one of our reserved pages, let it through
-    if( route.split('/')[0].indexOf(app.reservedPages) > -1){
-      return;
-    }
-
-    // If it's not off tld or if it's not going to start with a reserved page,
-    // then we're going to prevent default and handle everything with javascript
-    event.preventDefault();
-    util.routeViews( route )
-  });
+  // links that end with ! should trigger app.routes.events
+  util.catchEvents()
   
-  $(window).bind('popstate', function() {
-  
-    event.preventDefault();
-  
-    util.routeViews( $.url(window.location.pathname).segment()[0] );
-  });
+  app.router = Router({
+    '/': {on: 'home'},
+    '/:action': {on: 'hey'}
+  }).use({ resource: app.routes.pages }).init('/');
+
 })
