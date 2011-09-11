@@ -1,4 +1,4 @@
-# DataCouch
+# CoucHTML5 (hehehe)
 
 A nice boilerplate couchapp that uses Twitter's bootstrap css, hij1nks' sugarskull client side router, mustache templating, underscore.js and more.
 
