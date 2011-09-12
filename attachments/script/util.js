@@ -43,6 +43,10 @@ var util = function() {
     return dfd.promise();
   }
 
+  // given <script type='text/mustache' class="coolTemplate"> woo {{#message}} </script> 
+  // and <div class="awesome"></div> are in the dom
+  // render('cool', 'awesome', {message: "hooray"}) will put 'woo hooray' into the div
+  // and then call the app.after.cool function if you have defined it
   function render( template, target, options ) {
     if ( !options ) options = {data: {}};
     if ( !options.data ) options = {data: options};
@@ -63,40 +67,38 @@ var util = function() {
   function getBaseURL(path) {
     var url = $.url(path);
     var base = url.attr('base');
-    // construct correct URL in and out of couchdb vhosts, e.g. http://awesome.com vs. http://localhost:5984/datacouch/_design/datacouch/_rewrite
-    if (url.attr('path').indexOf("_rewrite") > 0) base = base + url.attr('path').split('_rewrite')[0] + "_rewrite";
     return base + "/";
   }
 
-  function catchEvents() {
-    $('a').live('click', function( event ) {
-      /*
-        Basic rules of this router:
-          * If the href ends with a bang (!) we're going to trigger an event from app.routes.events
-          * Otherwise, we're going to pass it through to SugarSkull
-      */
+  function catchEvents( route, event ) {
+    
+    // Trim off the #/ from the beginning of the route if it exists
+    route = route.replace('#/', '');
+    
+    /*
+      Basic rules:
+        * If the href ends with a bang (!) we're going to trigger the corresponding event route
+        * Otherwise, we're going to pass it through to SugarSkull
+    */
 
-      var route =  $(this).attr('href');
+    if( route && route.indexOf( '!' ) === ( route.length -1 ) ) {
 
-      if( route && route.indexOf( '!' ) === ( route.length -1 ) ) {
+      route = route.substr(0, route.lastIndexOf('!'));
 
-        route = route.substr(0, route.lastIndexOf('!'))
+      // The ID (if one exists) will be what comes after the slash
+      var id = route.split('/')[1];
 
-        // The ID (if one exists) will be what comes after the slash
-        var id = route.split('/')[1];
-
-        // If there is an Id, then we have to trim it off the route
-        if(id) {
-          route = route.split('/')[0];
-        }
-
-        if(route in app.routes.events) app.routes.events[ route ](id);
-
-        event.preventDefault();
-
+      // If there is an ID, then we have to trim it off the route
+      if (id) {
+        route = route.split('/')[0];
       }
 
-    });
+      if(route in app.routes.events) app.routes.events[ route ](id);
+
+      if (event) event.preventDefault();
+
+    }
+
   }
   
   return {

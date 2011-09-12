@@ -1,16 +1,16 @@
 var app = {
   baseURL: util.getBaseURL(window.location.href),
-};
+}
 
-couch.dbPath = app.baseURL + "api/";
+couch.dbPath = app.baseURL + "api/"
 
 /*
   App.routes
     pages (URL routed with SugarSkull)
       home (href === "/#/")
       hey (href === "/#:id")
-    events (no URL change triggered)
-      error (href === "error/uhoh!" or "error!")
+    events (hrefs ending with !. no URL change triggered)
+      error (href === "/#/error/uhoh!" or "/#/error!")
 */
 
 app.routes = {
@@ -22,14 +22,13 @@ app.routes = {
       util.render('nav', 'navContainer')
     },
     // when users visit routes like '/somewhere', this route will get called with id === 'somewhere'
-    hey: function(id) {
+    action: function(id) {
       if(id) alert(id)
     }
   },
   events: {
-    error: function(message) {
-      messages = {bad: "An error has occurred!"}
-      alert(messages[message])
+    error: function() {
+      alert("An error has occurred!")
     }
   }
 }
@@ -38,7 +37,7 @@ app.routes = {
 // e.g. util.render('userPosts', 'centerColumn') will call app.after.userPosts() after rendering
 app.after = {
   welcome: function() {
-    $('.btn').click(function(){ $('.hero-unit').css('background-color', 'salmon') });
+    $('.btn').click(function(){ $('.hero-unit').css('background-color', 'salmon') })
   }
 }
 
@@ -46,11 +45,15 @@ app.after = {
 $(function() {
   
   // links that end with ! should trigger app.routes.events
-  util.catchEvents()
+  $('a').live('click', function(event) {
+    var route =  $(this).attr('href')
+    if (route) util.catchEvents(route, event)
+  })
   
   app.router = Router({
     '/': {on: 'home'},
-    '/:action': {on: 'hey'}
-  }).use({ resource: app.routes.pages }).init('/');
-
+    '/(\\w+)!': {on: function(modal) { util.catchEvents("#/" + modal + "!") }},
+    '/:action': {on: 'action'},
+  }).use({ resource: app.routes.pages }).init('/')
+  
 })
