@@ -6,14 +6,8 @@ ddoc =
   { _id:'_design/boilerplate'
   , rewrites: 
     [ {from:"/", to:'index.html'}
-    , {from:"/api", to:'../../'}    
-    , {from:"/api/*", to:'../../*'}
-    , {from:"/script", to:'/script'}
-    , {from:"/script/*", to:'/script/*'}
-    , {from:"/style", to:'/style'}
-    , {from:"/style/*", to:'/style/*'}
-    , {from:"/images", to:'/images'}
-    , {from:"/images/*", to:'/images/*'}
+    , {from:"/api", to:'/../../'}    
+    , {from:"/api/*", to:'/../../*'}
     , {from:"/:action", to:'index.html'}
     , {from:"/:action/:id", to:'index.html'}
     , {from:"/*", to:'*'}

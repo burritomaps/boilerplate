@@ -1,6 +1,6 @@
 # CoucHTML5 (hehehe)
 
-A nice boilerplate couchapp that uses Twitter's bootstrap css, hij1nks' sugarskull client side router, mustache templating, underscore.js and more.
+A nice boilerplate couchapp that uses HTML5 boilerplate, Twitter's bootstrap CSS, Hij1nks' SugarSkull client side router, Mustache.js templating, Underscore.js and more.
 
 ## Installation
 
